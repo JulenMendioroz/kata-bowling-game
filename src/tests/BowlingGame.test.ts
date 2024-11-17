@@ -7,7 +7,7 @@ describe('BowlingGame', () => {
     expect(game.getScore()).toBe(0)
   })
 
-  describe('roll', () => {
+  describe('Roll', () => {
     it('should not allow a negative pin amount', () => {
       const game = new BowlingGame()
 
@@ -36,6 +36,43 @@ describe('BowlingGame', () => {
       const game = new BowlingGame()
 
       expect(() => game.roll(11)).toThrow()
+    })
+  })
+
+  describe("Frame", () => {
+    it.each([
+      { rolls: [7, 5] },
+      { rolls: [10, 3, 8] },
+      { rolls: [7, 3, 9, 4] },
+      { rolls: [2, 8, 10, 5, 10] },
+    ])("should not allow to roll more than 10 pins: $rolls", ({ rolls }) => {
+      const game = new BowlingGame()
+
+      expect(() => rolls.forEach(game.roll)).toThrow()
+    })
+
+    it("should allow to chain spares", () => {
+      const game = new BowlingGame()
+
+      expect(() => [7, 3, 2, 8].forEach(game.roll)).not.toThrow()
+    })
+
+    it("should allow to strike after a spare", () => {
+      const game = new BowlingGame()
+
+      expect(() => [7, 3, 10].forEach(game.roll)).not.toThrow()
+    })
+
+    it("should allow to spare after a strike", () => {
+      const game = new BowlingGame()
+
+      expect(() => [10, 9, 1].forEach(game.roll)).not.toThrow()
+    })
+
+    it("should allow to chain strikes", () => {
+      const game = new BowlingGame()
+
+      expect(() => [10, 10].forEach(game.roll)).not.toThrow()
     })
   })
 })
