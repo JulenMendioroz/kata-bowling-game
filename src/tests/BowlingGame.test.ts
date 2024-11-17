@@ -39,37 +39,38 @@ describe('BowlingGame', () => {
     })
   })
 
-  describe("Frame", () => {
+  describe('Frame', () => {
     it.each([
+      // prettier-ignore
       { rolls: [7, 5] },
       { rolls: [10, 3, 8] },
       { rolls: [7, 3, 9, 4] },
       { rolls: [2, 8, 10, 5, 10] },
-    ])("should not allow to roll more than 10 pins: $rolls", ({ rolls }) => {
+    ])('should not allow to roll more than 10 pins: $rolls', ({ rolls }) => {
       const game = new BowlingGame()
 
       expect(() => rolls.forEach(game.roll)).toThrow()
     })
 
-    it("should allow to chain spares", () => {
+    it('should allow to chain spares', () => {
       const game = new BowlingGame()
 
       expect(() => [7, 3, 2, 8].forEach(game.roll)).not.toThrow()
     })
 
-    it("should allow to strike after a spare", () => {
+    it('should allow to strike after a spare', () => {
       const game = new BowlingGame()
 
       expect(() => [7, 3, 10].forEach(game.roll)).not.toThrow()
     })
 
-    it("should allow to spare after a strike", () => {
+    it('should allow to spare after a strike', () => {
       const game = new BowlingGame()
 
       expect(() => [10, 9, 1].forEach(game.roll)).not.toThrow()
     })
 
-    it("should allow to chain strikes", () => {
+    it('should allow to chain strikes', () => {
       const game = new BowlingGame()
 
       expect(() => [10, 10].forEach(game.roll)).not.toThrow()
