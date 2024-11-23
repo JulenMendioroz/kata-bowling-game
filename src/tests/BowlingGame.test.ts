@@ -76,4 +76,20 @@ describe('BowlingGame', () => {
       expect(() => [10, 10].forEach(game.roll)).not.toThrow()
     })
   })
+
+  const worstGame = Array.from({ length: 20 }, () => 0)
+  const gameWithMostRolls = [...Array.from({ length: 19 }, () => 0), 10, 0]
+  const bestGame = Array.from({ length: 12 }, () => 10)
+
+  it.each([
+    { case: 'worst game', rolls: worstGame },
+    { case: 'game with most rolls', rolls: gameWithMostRolls },
+    { case: 'best game', rolls: bestGame },
+  ])('should not allow to roll when $case is finished', ({ rolls }) => {
+    const game = new BowlingGame()
+
+    rolls.forEach(game.roll)
+
+    expect(() => game.roll(0)).toThrow()
+  })
 })

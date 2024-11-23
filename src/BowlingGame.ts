@@ -1,6 +1,7 @@
 export class BowlingGame {
   private rolls: number[] = []
-  private startOfFrame = 0
+  private startOfCurrentFrame = 0
+  private playedFrames = 0
 
   getScore = () => {
     return 0
@@ -9,36 +10,68 @@ export class BowlingGame {
   roll = (pins: number) => {
     this.assertRoll(pins)
     this.rolls.push(pins)
-    this.updateStartOfFrame()
+    this.prepareNextFrame()
   }
 
-  private updateStartOfFrame = () => {
-    const { isStrike, isComplete } = this.getCurrentFrameInfo()
+  private prepareNextFrame = () => {
+    if (this.isCurrentFrameLast() || !this.isCurrentFrameComplete()) return
 
-    if (!isComplete) return
+    const { length: rollsInCurrentFrame } = this.getCurrentFrame()
 
-    const startOfNextFrame = this.startOfFrame + (isStrike ? 1 : 2)
-
-    this.startOfFrame = startOfNextFrame
+    this.startOfCurrentFrame += rollsInCurrentFrame
+    this.playedFrames += 1
   }
 
-  private getCurrentFrameInfo = () => {
-    const { rolls, startOfFrame } = this
+  private getCurrentFrame = () => {
+    return this.rolls.slice(this.startOfCurrentFrame)
+  }
 
-    const frame = rolls.slice(startOfFrame)
-    const isStrike = frame[0] === 10
-    const isNormal = frame.length === 2
-    const isComplete = isStrike || isNormal
+  private isCurrentFrameLast = () => {
+    return this.playedFrames === 9
+  }
 
-    return { isStrike, isComplete }
+  private isCurrentFrameComplete = () => {
+    const currentFrame = this.getCurrentFrame()
+    const { length: rollsInCurrentFrame } = currentFrame
+    const [first = 0, second = 0] = currentFrame
+    const isStrike = first === 10
+
+    if (!this.isCurrentFrameLast()) {
+      return isStrike || rollsInCurrentFrame === 2
+    }
+
+    const isSpare = first + second
+    const hasExtraRoll = isStrike || isSpare
+    const rollsToCompleteLastFrame = hasExtraRoll ? 3 : 2
+
+    return rollsInCurrentFrame === rollsToCompleteLastFrame
+  }
+
+  private isFinished = () => {
+    return this.isCurrentFrameLast() && this.isCurrentFrameComplete()
   }
 
   private assertRoll = (pins: number) => {
-    if (pins < 0 || 10 < pins) throw new Error()
+    if (this.isFinished()) throw new Error()
+    const maxAllowedPinAmount = this.getMaxAllowedPinAmountForCurrentRoll()
+    if (pins < 0 || maxAllowedPinAmount < pins) throw new Error()
+  }
 
-    const firstRollOfFrame = this.rolls[this.startOfFrame] ?? 0
-    const pinsRolledInFrame = firstRollOfFrame + pins
+  private getMaxAllowedPinAmountForCurrentRoll = () => {
+    const [first, second] = this.getCurrentFrame()
 
-    if (pinsRolledInFrame > 10) throw new Error()
+    if (first === undefined) return 10
+
+    if (!this.isCurrentFrameLast()) {
+      return 10 - first
+    }
+
+    if (second === undefined) {
+      return 10 - first || 10
+    }
+
+    if (first + second === 10) return 10
+    if (second === 10) return 10
+    return 10 - second
   }
 }
